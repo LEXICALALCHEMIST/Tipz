@@ -20,7 +20,7 @@ export default function LoginScreen({ onLogin }) {
   return (
     <SafeAreaView style={styles.screen}>
       <Text style={styles.mark}>TIPZ</Text>
-      <Text style={styles.sub}>Stock tips. Nothing else yet.</Text>
+      <Text style={styles.sub}>Post Day Trade Stock tips. Get TIPZ.</Text>
 
       <View style={styles.form}>
         <Text style={styles.label}>Email</Text>
