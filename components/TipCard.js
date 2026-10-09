@@ -9,7 +9,7 @@ export default function TipCard({ tip }) {
       </View>
       <Text style={styles.body}>{tip.body}</Text>
       <Text style={styles.by}>
-        {tip.at} · {tip.email}
+        {tip.at} · {tip.username || tip.email}
       </Text>
     </View>
   );

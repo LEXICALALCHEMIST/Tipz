@@ -1,20 +1,15 @@
-import { FlatList, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import Header from '../components/Header';
 import TipCard from '../components/TipCard';
 
-export default function TopTwenty({ tips, onBack }) {
+export default function TopTwenty({ tips, onBack, username }) {
   const top = [...tips]
     .sort((a, b) => (b.score || 0) - (a.score || 0))
     .slice(0, 20);
 
   return (
     <SafeAreaView style={styles.screen}>
-      <View style={styles.header}>
-        <Pressable onPress={onBack} hitSlop={12}>
-          <Ionicons name="arrow-back" size={26} color="#7ef0e8" />
-        </Pressable>
-        <Text style={styles.mark}>TIPZ</Text>
-      </View>
+      <Header onBack={onBack} username={username} />
       <Text style={styles.sub}>Top 20</Text>
 
       <FlatList
@@ -44,17 +39,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#0c1214',
     paddingHorizontal: 24,
     paddingTop: 24,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  mark: {
-    color: '#7ef0e8',
-    fontSize: 28,
-    fontWeight: '700',
-    letterSpacing: 4,
   },
   sub: { color: '#8aa8a6', marginTop: 12, marginBottom: 16 },
   list: { paddingBottom: 24 },

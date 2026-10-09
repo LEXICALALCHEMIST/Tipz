@@ -2,13 +2,12 @@ import { FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import Header from '../components/Header';
 import TipCard from '../components/TipCard';
 
-export default function ProfileScreen({ email, tips, onBack }) {
+export default function ProfileScreen({ email, username, tips, onBack }) {
   const mine = tips.filter((tip) => tip.email === email);
 
   return (
     <SafeAreaView style={styles.screen}>
-      <Header onBack={onBack} />
-      <Text style={styles.sub}>{email}</Text>
+      <Header username={username} onBack={onBack} />
       <Text style={styles.count}>{mine.length} tips</Text>
 
       <FlatList

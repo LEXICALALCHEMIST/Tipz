@@ -1,44 +1,104 @@
 import { useEffect, useState } from 'react';
-import { StatusBar } from 'expo-status-bar';
 import {
+  Alert,
+  Image,
   Pressable,
   SafeAreaView,
   StyleSheet,
   Text,
+  TextInput,
   View,
-  Alert,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
+import { LinearGradient } from 'expo-linear-gradient';
 import LoginScreen from './screens/LoginScreen';
 import ThreadScreen from './screens/ThreadScreen';
 import CreateTipScreen from './screens/CreateTipScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import SettingsScreen from './screens/SettingsScreen';
 import TopTwenty from './screens/TopTwenty';
 import BottomNav from './components/BottomNav';
 import { createTip, listTips } from './services/tips';
+import { signIn, signOut, signUp } from './services/auth';
 
+function SignUpScreen({ onSignUp, onLogin }) {
+  const [ready] = useFonts({
+    Tipz: require('./assets/fonts/tipz.ttf'),
+  });
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-function SettingsScreen({ onBack, onLogout }) {
+  function submit() {
+    if (!username.trim() || !email.trim() || !password) return;
+    onSignUp({
+      username: username.trim(),
+      email: email.trim(),
+      password,
+    });
+  }
+
+  if (!ready) return null;
+
   return (
-    <SafeAreaView style={styles.screen}>
-      <View style={styles.header}>
-        <Pressable onPress={onBack} hitSlop={12}>
-          <Ionicons name="arrow-back" size={26} color="#7ef0e8" />
-        </Pressable>
-        <Text style={styles.mark}>TIPZ</Text>
-      </View>
-      <Text style={styles.sub}>Settings</Text>
-      <View style={styles.empty}>
-        <Pressable onPress={onLogout}>
-          <Text style={styles.logout}>Log out</Text>
-        </Pressable>
-      </View>
-    </SafeAreaView>
+    <LinearGradient
+      colors={['#0c1214', '#0c1214', '#000000']}
+      locations={[0, 0.5, 1]}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.brand}>
+          <Image source={require('./assets/logo.jpg')} style={styles.logo} />
+          <Text style={styles.mark}>TIPZ</Text>
+        </View>
+        <Text style={styles.sub}>Pick a name once.</Text>
+        <View style={styles.form}>
+          <Text style={styles.label}>Username</Text>
+          <TextInput
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder="name"
+            placeholderTextColor="#5d7370"
+            style={styles.input}
+          />
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            placeholder="you@email.com"
+            placeholderTextColor="#5d7370"
+            style={styles.input}
+          />
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholder="password"
+            placeholderTextColor="#5d7370"
+            style={styles.input}
+          />
+          <Pressable onPress={submit} style={styles.button}>
+            <Text style={styles.buttonText}>Create account</Text>
+          </Pressable>
+          <Pressable onPress={onLogin}>
+            <Text style={styles.link}>Already have an account</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 export default function App() {
   const [session, setSession] = useState(null);
+  const [gate, setGate] = useState('login');
   const [screen, setScreen] = useState('thread');
   const [tips, setTips] = useState([]);
 
@@ -46,6 +106,22 @@ export default function App() {
     if (!session) return;
     listTips().then(setTips).catch((err) => console.log(err.message));
   }, [session]);
+
+  async function handleLogin({ email, password }) {
+    try {
+      setSession(await signIn({ email, password }));
+    } catch (err) {
+      Alert.alert('Log in failed', err.message);
+    }
+  }
+
+  async function handleSignUp({ email, username, password }) {
+    try {
+      setSession(await signUp({ email, username, password }));
+    } catch (err) {
+      Alert.alert('Sign up failed', err.message);
+    }
+  }
 
   async function addTip(tip) {
     try {
@@ -57,16 +133,31 @@ export default function App() {
     }
   }
 
-  function logout() {
+  async function logout() {
+    try {
+      await signOut();
+    } catch (err) {
+      Alert.alert('Log out failed', err.message);
+    }
     setScreen('thread');
+    setGate('login');
     setSession(null);
+  }
+
+  if (!session && gate === 'signup') {
+    return (
+      <>
+        <StatusBar style="light" />
+        <SignUpScreen onSignUp={handleSignUp} onLogin={() => setGate('login')} />
+      </>
+    );
   }
 
   if (!session) {
     return (
       <>
         <StatusBar style="light" />
-        <LoginScreen onLogin={setSession} />
+        <LoginScreen onLogin={handleLogin} onSignUp={() => setGate('signup')} />
       </>
     );
   }
@@ -79,29 +170,35 @@ export default function App() {
           onClose={() => setScreen('thread')}
           onSave={addTip}
           email={session.email}
+          username={session.username}
         />
       </>
     );
   }
 
   return (
-    <View style={styles.root}>
+    <View style={{ flex: 1, backgroundColor: '#0c1214' }}>
       <StatusBar style="light" />
       {screen === 'profile' ? (
         <ProfileScreen
           email={session.email}
+          username={session.username}
           tips={tips}
           onBack={() => setScreen('thread')}
         />
       ) : null}
       {screen === 'top' ? (
-        <TopTwenty tips={tips} onBack={() => setScreen('thread')} />
+        <TopTwenty tips={tips} onBack={() => setScreen('thread')} username={session.username} />
       ) : null}
       {screen === 'settings' ? (
-        <SettingsScreen onBack={() => setScreen('thread')} onLogout={logout} />
+        <SettingsScreen onBack={() => setScreen('thread')} onLogout={logout} username={session.username} />
       ) : null}
       {screen === 'thread' ? (
-        <ThreadScreen email={session.email} tips={tips} />
+        <ThreadScreen
+          email={session.email}
+          username={session.username}
+          tips={tips}
+        />
       ) : null}
       <BottomNav
         screen={screen}
@@ -116,25 +213,30 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#0c1214' },
-  screen: {
-    flex: 1,
-    backgroundColor: '#0c1214',
-    paddingHorizontal: 24,
-    paddingTop: 24,
+  safe: { flex: 1, paddingHorizontal: 24, paddingTop: 48 },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  logo: { width: 48, height: 48, borderRadius: 10 },
+  mark: { fontFamily: 'Tipz', fontSize: 42, color: '#7ef0e8', letterSpacing: 4 },
+  sub: { fontFamily: 'Tipz', color: '#8aa8a6', marginTop: 8, marginBottom: 36 },
+  form: { gap: 8 },
+  label: { color: '#c9e7e4', marginTop: 12, fontSize: 13 },
+  input: {
+    borderWidth: 1,
+    borderColor: '#1e3332',
+    backgroundColor: '#10191b',
+    color: '#e7f6f5',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 16,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  button: {
+    marginTop: 22,
+    backgroundColor: '#7ef0e8',
+    borderRadius: 12,
+    paddingVertical: 14,
     alignItems: 'center',
   },
-  mark: {
-    color: '#7ef0e8',
-    fontSize: 28,
-    fontWeight: '700',
-    letterSpacing: 4,
-  },
-  sub: { color: '#8aa8a6', marginTop: 12 },
-  empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  logout: { color: '#7ef0e8', fontSize: 16 },
-})
+  buttonText: { color: '#0c1214', fontWeight: '700', fontSize: 16 },
+  link: { color: '#7ef0e8', textAlign: 'center', marginTop: 16 },
+});

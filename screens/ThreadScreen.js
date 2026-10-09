@@ -1,11 +1,11 @@
 import { FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import Header from '../components/Header';
 import TipCard from '../components/TipCard';
 
-export default function ThreadScreen({ email, tips }) {
+export default function ThreadScreen({ username, tips }) {
   return (
     <SafeAreaView style={styles.screen}>
-      <Text style={styles.mark}>TIPZ</Text>
-      <Text style={styles.sub}>{email}</Text>
+      <Header username={username} />
 
       <FlatList
         data={tips}
@@ -30,14 +30,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 24,
   },
-  mark: {
-    color: '#7ef0e8',
-    fontSize: 28,
-    fontWeight: '700',
-    letterSpacing: 4,
-  },
-  sub: { color: '#8aa8a6', marginTop: 4, marginBottom: 16 },
-  list: { paddingBottom: 24 },
+  list: { paddingBottom: 24, marginTop: 16 },
   emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   emptyTitle: { color: '#e7f6f5', fontSize: 18, fontWeight: '600' },
   emptyBody: { color: '#8aa8a6', marginTop: 6 },

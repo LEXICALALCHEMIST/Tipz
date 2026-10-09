@@ -18,6 +18,7 @@ export async function createTip(tip) {
       price: tip.price,
       at: tip.at,
       email: tip.email,
+      username: tip.username,
     })
     .select()
     .single();

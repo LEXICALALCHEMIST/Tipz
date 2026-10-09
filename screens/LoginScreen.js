@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Image,
   Pressable,
   SafeAreaView,
   StyleSheet,
@@ -7,66 +8,97 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useFonts } from 'expo-font';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export default function LoginScreen({ onLogin }) {
+export default function LoginScreen({ onLogin, onSignUp }) {
+  const [ready] = useFonts({
+    Tipz: require('../assets/fonts/tipz.ttf'),
+  });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   function submit() {
     if (!email.trim() || !password) return;
-    onLogin({ email: email.trim() });
+    onLogin({ email: email.trim(), password });
   }
 
+  if (!ready) return null;
+
   return (
-    <SafeAreaView style={styles.screen}>
-      <Text style={styles.mark}>TIPZ</Text>
-      <Text style={styles.sub}>Post Day Trade Stock tips. Get TIPZ.</Text>
+    <LinearGradient
+      colors={['#0c1214', '#0c1214', '#000000']}
+      locations={[0, 0.5, 1]}
+      style={styles.screen}
+    >
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.brand}>
+          <Image source={require('../assets/logo.jpg')} style={styles.logo} />
+          <Text style={styles.mark}>TIPZ</Text>
+        </View>
+        <Text style={styles.sub}>Post Day Trade Stock tips. Get TIPZ.</Text>
 
-      <View style={styles.form}>
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          placeholder="you@email.com"
-          placeholderTextColor="#5d7370"
-          style={styles.input}
-        />
+        <View style={styles.form}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            placeholder="you@email.com"
+            placeholderTextColor="#5d7370"
+            style={styles.input}
+          />
 
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholder="password"
-          placeholderTextColor="#5d7370"
-          style={styles.input}
-        />
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholder="password"
+            placeholderTextColor="#5d7370"
+            style={styles.input}
+          />
 
-        <Pressable onPress={submit} style={styles.button}>
-          <Text style={styles.buttonText}>Log in</Text>
-        </Pressable>
-      </View>
-    </SafeAreaView>
+          <Pressable onPress={submit} style={styles.button}>
+            <Text style={styles.buttonText}>Log in</Text>
+          </Pressable>
+
+          <Pressable onPress={onSignUp}>
+            <Text style={styles.link}>Create account</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  screen: { flex: 1 },
+  safe: {
     flex: 1,
-    backgroundColor: '#0c1214',
     paddingHorizontal: 24,
     paddingTop: 48,
   },
+  brand: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  logo: {
+    width: 48,
+    height: 48,
+    borderRadius: 10,
+  },
   mark: {
-    color: '#7ef0e8',
+    fontFamily: 'Tipz',
     fontSize: 42,
-    fontWeight: '700',
-    letterSpacing: 6,
+    color: '#7ef0e8',
+    letterSpacing: 4,
   },
   sub: {
+    fontFamily: 'Tipz',
     color: '#8aa8a6',
     marginTop: 8,
     marginBottom: 36,
@@ -91,4 +123,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: { color: '#0c1214', fontWeight: '700', fontSize: 16 },
+  link: { color: '#7ef0e8', textAlign: 'center', marginTop: 16 },
 });

@@ -1,7 +1,14 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFonts } from 'expo-font';
 
-export default function Header({ onBack }) {
+export default function Header({ onBack, username }) {
+  const [ready] = useFonts({
+    Tipz: require('../assets/fonts/tipz.ttf'),
+  });
+
+  if (!ready) return null;
+
   return (
     <View style={styles.header}>
       {onBack ? (
@@ -11,6 +18,10 @@ export default function Header({ onBack }) {
       ) : (
         <View style={styles.spacer} />
       )}
+      <View style={styles.user}>
+        <Image source={require('../assets/user.jpg')} style={styles.face} />
+        <Text style={styles.name}>{username}</Text>
+      </View>
       <Text style={styles.mark}>TIPZ</Text>
     </View>
   );
@@ -19,14 +30,18 @@ export default function Header({ onBack }) {
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 14,
   },
   spacer: { width: 26 },
+  user: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  face: { width: 28, height: 28, borderRadius: 14 },
+  name: { color: '#e7f6f5', fontSize: 16 },
   mark: {
+    fontFamily: 'Tipz',
     color: '#7ef0e8',
     fontSize: 28,
-    fontWeight: '700',
     letterSpacing: 4,
   },
 });

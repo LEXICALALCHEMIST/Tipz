@@ -20,13 +20,14 @@ export default function CreateTipScreen({ onClose, onSave, email }) {
 
   function save() {
     if (!ticker.trim() || !body.trim() || !price.trim() || !at.trim()) return;
-    onSave({
-      ticker: ticker.trim().toUpperCase(),
-      body: body.trim(),
-      price: price.trim(),
-      at: at.trim(),
-      email,
-    });
+      onSave({
+        ticker: ticker.trim().toUpperCase(),
+        body: body.trim(),
+        price: price.trim(),
+        at: at.trim(),
+        email,
+        username,
+      });
   }
 
   return (
